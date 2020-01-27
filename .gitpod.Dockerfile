@@ -1,4 +1,4 @@
-FROM gitpod/workspace-full:latest
+FROM gitpod/workspace-full
 
 USER root
 # Install util tools.
@@ -10,7 +10,6 @@ RUN apt-get update \
   less \
   libfmt-dev \
   libspdlog-dev \
-  lynx \
   lcov \
   wget
 
@@ -31,8 +30,16 @@ RUN chown -R gitpod:gitpod /opt/conda \
     && chown -R gitpod:gitpod /home/gitpod/.conda \
     && chmod -R 777 /home/gitpod/.conda
 
-# Give back control
-USER root
+RUN /opt/conda/bin/conda config --set always_yes yes --set changeps1 no \
+    && /opt/conda/bin/conda update -q conda \
+    && /opt/conda/bin/conda info -a
 
-# Cleaning
-RUN apt-get clean
+RUN /opt/conda/bin/conda install -y \
+    ninja
+
+RUN /opt/conda/bin/conda install -y -c conda-forge \
+    catch2 \
+    lapack \
+    cppcheck
+
+RUN apt-get clean && rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
